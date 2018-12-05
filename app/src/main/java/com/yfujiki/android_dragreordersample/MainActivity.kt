@@ -4,6 +4,8 @@ import android.app.ActionBar
 import android.app.Activity
 import android.graphics.Color
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
@@ -13,6 +15,7 @@ import androidx.recyclerview.widget.ItemTouchHelper.*
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.recycler_view_holder.view.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -51,17 +54,23 @@ class MainActivity : AppCompatActivity() {
 
         ItemTouchHelper(simpleItemTouchCallback)
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView.layoutManager = LinearLayoutManager(this) as RecyclerView.LayoutManager
         recyclerView.adapter = MainRecyclerViewAdapter(this)
         itemTouchHelper.attachToRecyclerView(recyclerView)
     }
+
+    fun startDragging(viewHolder: RecyclerView.ViewHolder) {
+        itemTouchHelper.startDrag(viewHolder)
+    }
 }
 
-class MainRecyclerViewAdapter(val activity: Activity): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class MainRecyclerViewAdapter(val activity: MainActivity):
+    RecyclerView.Adapter<MainRecyclerViewAdapter.MainRecyclerViewHolder>() {
     private var emojis = listOf(
         "😀",
         "😃",
@@ -93,22 +102,29 @@ class MainRecyclerViewAdapter(val activity: Activity): RecyclerView.Adapter<Recy
         return emojis.size
     }
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: MainRecyclerViewHolder, position: Int) {
         val emoji = emojis[position]
-        val textView = holder.itemView as TextView
-        textView.text = emoji
-        textView.textSize = 64F
-        textView.textAlignment = TextView.TEXT_ALIGNMENT_CENTER
-        textView.setTextColor(Color.parseColor("#000000"))
+        holder.setText(emoji)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        val textView = TextView(activity)
-        var layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-        textView.layoutParams = layoutParams
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MainRecyclerViewHolder {
+        val itemView = LayoutInflater.from(parent.context).inflate(R.layout.recycler_view_holder, parent, false)
+        val viewHolder = MainRecyclerViewHolder(itemView)
 
-        val viewHolder = object: RecyclerView.ViewHolder(textView) {}
+        viewHolder.itemView.handleView.setOnTouchListener { view, event ->
+            if (event.actionMasked == MotionEvent.ACTION_DOWN) {
+                activity.startDragging(viewHolder)
+            }
+            return@setOnTouchListener true
+        }
+
         return viewHolder
+    }
+
+    class MainRecyclerViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
+        fun setText(text: String) {
+            itemView.textView.text = text
+        }
     }
 }
 
