@@ -21,10 +21,9 @@ class MainActivity : AppCompatActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = MainRecyclerViewAdapter(this)
     }
-
 }
 
-class MainRecyclerViewAdapter(val activity: Activity): RecyclerView.Adapter<MainRecyclerViewAdapter.ViewHolder>() {
+class MainRecyclerViewAdapter(val activity: Activity): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     val emojis = listOf(
         "😀",
         "😃",
@@ -46,7 +45,7 @@ class MainRecyclerViewAdapter(val activity: Activity): RecyclerView.Adapter<Main
         return emojis.size
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val emoji = emojis[position]
         val textView = holder.itemView as TextView
         textView.text = emoji
@@ -55,16 +54,13 @@ class MainRecyclerViewAdapter(val activity: Activity): RecyclerView.Adapter<Main
         textView.setTextColor(Color.parseColor("#000000"))
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val textView = TextView(activity)
         var layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
         textView.layoutParams = layoutParams
 
-        val viewHolder = ViewHolder(textView)
+        val viewHolder = object: RecyclerView.ViewHolder(textView) {}
         return viewHolder
-    }
-
-    class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
     }
 }
 
